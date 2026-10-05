@@ -28,7 +28,9 @@ function saveLocalData(data) {
  */
 export async function getBlob(key) {
   try {
-    const encodedKey = encodeURIComponent(key);
+    // Normalise key encoding (prevent double-encoding %3A)
+    const rawKey = decodeURIComponent(key);
+    const encodedKey = encodeURIComponent(rawKey);
     const res = await fetch(`${BASE_URL}/${encodedKey}`, {
       headers: { Authorization: `Bearer ${TOKEN}` }
     });
@@ -36,7 +38,7 @@ export async function getBlob(key) {
       return await res.json();
     }
   } catch (err) {
-    // Network or offline fallback
+    // Fallback
   }
   const local = getLocalData();
   return local[key] !== undefined ? local[key] : null;
@@ -47,7 +49,8 @@ export async function getBlob(key) {
  */
 export async function setBlob(key, value) {
   try {
-    const encodedKey = encodeURIComponent(key);
+    const rawKey = decodeURIComponent(key);
+    const encodedKey = encodeURIComponent(rawKey);
     const res = await fetch(`${BASE_URL}/${encodedKey}`, {
       method: "PUT",
       headers: {
@@ -60,7 +63,7 @@ export async function setBlob(key, value) {
       return true;
     }
   } catch (err) {
-    // Network or offline fallback
+    // Fallback
   }
   const local = getLocalData();
   local[key] = value;
@@ -70,21 +73,30 @@ export async function setBlob(key, value) {
 
 /**
  * Lists blob keys with a given prefix via Netlify Blobs REST API.
+ * Automatically decodes URL-encoded keys (e.g. %3A -> :) for caller consistency.
  */
 export async function listBlobs(prefix = "") {
   try {
-    const url = prefix ? `${BASE_URL}?prefix=${encodeURIComponent(prefix)}` : BASE_URL;
-    const res = await fetch(url, {
+    const res = await fetch(BASE_URL, {
       headers: { Authorization: `Bearer ${TOKEN}` }
     });
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data.blobs)) {
-        return data.blobs.map(b => b.key);
+        const decodedKeys = data.blobs.map(b => {
+          try {
+            return decodeURIComponent(b.key);
+          } catch (e) {
+            return b.key;
+          }
+        });
+        if (!prefix) return decodedKeys;
+        const normalizedPrefix = decodeURIComponent(prefix);
+        return decodedKeys.filter(k => k.startsWith(normalizedPrefix));
       }
     }
   } catch (err) {
-    // Network or offline fallback
+    // Fallback
   }
   const local = getLocalData();
   return Object.keys(local).filter(k => k.startsWith(prefix));

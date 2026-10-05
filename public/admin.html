@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Portal — Mind Matters Quiz Records</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .admin-container {
+      max-width: 1000px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+    }
+    .admin-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .admin-badge {
+      display: inline-block;
+      background: #fef3c7;
+      color: #92400e;
+      font-weight: 700;
+      padding: 0.25rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-val {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--primary-teal);
+      line-height: 1.2;
+    }
+    .stat-lbl {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: 0.25rem;
+    }
+    .actions-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+      padding: 0.65rem 1rem;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+    }
+    .btn-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .data-table-card {
+      background: white;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      border: 1px solid var(--border-light);
+      overflow-x: auto;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .data-table th {
+      background: #f8fafc;
+      color: var(--primary-teal);
+      font-weight: 700;
+      padding: 0.85rem 1rem;
+      border-bottom: 2px solid var(--border-light);
+      white-space: nowrap;
+    }
+    .data-table td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid var(--border-light);
+      vertical-align: middle;
+    }
+    .data-table tr:hover {
+      background: #f1f5f9;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .status-completed {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .status-in_progress {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .login-box {
+      max-width: 450px;
+      margin: 3rem auto;
+      background: white;
+      padding: 2rem;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-light);
+      text-align: center;
+    }
+    .modal {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: white;
+      border-radius: var(--radius-md);
+      max-width: 600px;
+      width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .answers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .ans-box {
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
+      padding: 0.5rem;
+      text-align: center;
+      font-size: 0.8rem;
+    }
+    .ans-correct { background: #dcfce7; border-color: #86efac; color: #166534; }
+    .ans-wrong { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+    .ans-timeout { background: #fef3c7; border-color: #fcd34d; color: #92400e; }
+  </style>
+</head>
+<body>
+  <div class="admin-container">
+    <div class="admin-header">
+      <img src="logo.png" alt="Library Logo" class="library-logo" style="max-width: 220px;" />
+      <span class="admin-badge">🔒 Organizer & Admin Portal</span>
+      <h1 class="app-title" style="font-size: 2rem;">Participant Records</h1>
+      <p class="library-name">Perpustakaan Negeri Sabah, Cawangan Tanjung Aru</p>
+    </div>
+
+    <!-- Login Box -->
+    <div id="auth-section" class="login-box">
+      <h2>Enter Admin Key</h2>
+      <p class="screen-subtitle">Please enter your secret ADMIN_KEY to access participant records.</p>
+      
+      <div id="login-error" class="alert-box alert-danger hidden"></div>
+
+      <form id="auth-form" style="margin-top: 1rem;">
+        <input type="password" id="admin-key-input" placeholder="Admin Key" required style="margin-bottom: 1rem;" />
+        <button type="submit" class="btn-primary btn-block">Access Records</button>
+      </form>
+    </div>
+
+    <!-- Main Dashboard Section (Hidden until authenticated) -->
+    <div id="dashboard-section" class="hidden">
+      <!-- Stats Row -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div id="stat-total" class="stat-val">0</div>
+          <div class="stat-lbl">Total Registered</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-completed" class="stat-val">0</div>
+          <div class="stat-lbl">Completed Quizzes</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-inprogress" class="stat-val">0</div>
+          <div class="stat-lbl">In Progress</div>
+        </div>
+        <div class="stat-card">
+          <div id="stat-avg" class="stat-val">0.0</div>
+          <div class="stat-lbl">Average Score</div>
+        </div>
+      </div>
+
+      <!-- Controls Bar -->
+      <div class="actions-bar">
+        <input type="text" id="search-input" class="search-input" placeholder="🔍 Search by Email or IC Number..." />
+        
+        <div class="btn-group">
+          <button id="btn-refresh" class="btn-secondary btn-small">🔄 Refresh</button>
+          <button id="btn-download-csv" class="btn-primary btn-small">📥 Download CSV</button>
+        </div>
+      </div>
+
+      <!-- Data Table Card -->
+      <div class="data-table-card">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Email Address</th>
+              <th>IC Number</th>
+              <th>Registration Time</th>
+              <th>Status</th>
+              <th>Score / 25</th>
+              <th>Finish Time</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="records-body">
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                Loading participant records...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <a href="index.html" class="btn-secondary btn-small">← Back to Main Menu</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-title">Participant Answers</h3>
+        <button id="btn-close-modal" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div id="modal-info" style="font-size: 0.9rem; margin-bottom: 1rem;"></div>
+      <h4>Questions Answered</h4>
+      <div id="modal-answers" class="answers-grid"></div>
+    </div>
+  </div>
+
+  <script>
+    const authSection = document.getElementById("auth-section");
+    const dashboardSection = document.getElementById("dashboard-section");
+    const authForm = document.getElementById("auth-form");
+    const adminKeyInput = document.getElementById("admin-key-input");
+    const loginError = document.getElementById("login-error");
+
+    const statTotal = document.getElementById("stat-total");
+    const statCompleted = document.getElementById("stat-completed");
+    const statInProgress = document.getElementById("stat-inprogress");
+    const statAvg = document.getElementById("stat-avg");
+
+    const searchInput = document.getElementById("search-input");
+    const btnRefresh = document.getElementById("btn-refresh");
+    const btnDownloadCsv = document.getElementById("btn-download-csv");
+    const recordsBody = document.getElementById("records-body");
+
+    const detailModal = document.getElementById("detail-modal");
+    const modalTitle = document.getElementById("modal-title");
+    const modalInfo = document.getElementById("modal-info");
+    const modalAnswers = document.getElementById("modal-answers");
+    const btnCloseModal = document.getElementById("btn-close-modal");
+
+    let currentAdminKey = sessionStorage.getItem("mind_matters_admin_key") || "";
+    let participantsData = [];
+
+    // Auto-login if ?key= is in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const keyFromUrl = urlParams.get("key") || urlParams.get("admin_key");
+    if (keyFromUrl) {
+      currentAdminKey = keyFromUrl;
+      sessionStorage.setItem("mind_matters_admin_key", currentAdminKey);
+    }
+
+    if (currentAdminKey) {
+      fetchRecords(currentAdminKey);
+    }
+
+    authForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const enteredKey = adminKeyInput.value.trim();
+      if (!enteredKey) return;
+      fetchRecords(enteredKey);
+    });
+
+    btnRefresh.addEventListener("click", () => fetchRecords(currentAdminKey));
+
+    btnDownloadCsv.addEventListener("click", () => {
+      if (!currentAdminKey) return;
+      window.location.href = `/api/export?key=${encodeURIComponent(currentAdminKey)}`;
+    });
+
+    searchInput.addEventListener("input", () => {
+      renderTable(filterParticipants());
+    });
+
+    btnCloseModal.addEventListener("click", () => {
+      detailModal.classList.add("hidden");
+    });
+
+    async function fetchRecords(key) {
+      loginError.classList.add("hidden");
+      try {
+        const res = await fetch(`/api/export?format=json&key=${encodeURIComponent(key)}`);
+        if (res.status === 401) {
+          loginError.textContent = "Invalid Admin Key. Please try again.";
+          loginError.classList.remove("hidden");
+          authSection.classList.remove("hidden");
+          dashboardSection.classList.add("hidden");
+          return;
+        }
+        if (!res.ok) throw new Error("Server error fetching records");
+
+        const data = await res.json();
+        currentAdminKey = key;
+        sessionStorage.setItem("mind_matters_admin_key", key);
+
+        authSection.classList.add("hidden");
+        dashboardSection.classList.remove("hidden");
+
+        participantsData = data.participants || [];
+        updateStats(participantsData);
+        renderTable(participantsData);
+      } catch (err) {
+        loginError.textContent = "Connection error: " + err.message;
+        loginError.classList.remove("hidden");
+      }
+    }
+
+    function updateStats(list) {
+      statTotal.textContent = list.length;
+      const completed = list.filter(p => p.status === "completed");
+      statCompleted.textContent = completed.length;
+      statInProgress.textContent = list.length - completed.length;
+
+      if (completed.length > 0) {
+        const sum = completed.reduce((acc, p) => acc + (p.score || 0), 0);
+        statAvg.textContent = (sum / completed.length).toFixed(1);
+      } else {
+        statAvg.textContent = "0.0";
+      }
+    }
+
+    function filterParticipants() {
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) return participantsData;
+      return participantsData.filter(p => 
+        (p.email && p.email.toLowerCase().includes(q)) ||
+        (p.ic && p.ic.includes(q))
+      );
+    }
+
+    function renderTable(list) {
+      if (list.length === 0) {
+        recordsBody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:2rem; color:var(--text-muted);">No matching participant records found.</td></tr>`;
+        return;
+      }
+
+      recordsBody.innerHTML = list.map((p, idx) => {
+        const regDate = p.startTime ? new Date(p.startTime).toLocaleString() : "-";
+        const finishDate = p.finishTime ? new Date(p.finishTime).toLocaleString() : "-";
+        const isCompleted = p.status === "completed";
+        const statusClass = isCompleted ? "status-completed" : "status-in_progress";
+        const statusLabel = isCompleted ? "Completed" : "In Progress";
+
+        return `
+          <tr>
+            <td><strong>${idx + 1}</strong></td>
+            <td><strong>${escapeHtml(p.email)}</strong></td>
+            <td><code>${escapeHtml(p.ic)}</code></td>
+            <td>${regDate}</td>
+            <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
+            <td><strong>${p.score}</strong> / 25</td>
+            <td>${finishDate}</td>
+            <td>
+              <button onclick="viewAnswers(${idx})" class="btn-secondary btn-small" style="min-height:30px; padding:0.25rem 0.6rem; font-size:0.8rem;">
+                View
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    window.viewAnswers = function(idx) {
+      const currentList = filterParticipants();
+      const p = currentList[idx];
+      if (!p) return;
+
+      modalTitle.textContent = `Answers for ${p.email}`;
+      modalInfo.innerHTML = `
+        <strong>IC Number:</strong> ${p.ic}<br>
+        <strong>Status:</strong> ${p.status}<br>
+        <strong>Final Score:</strong> ${p.score} / 25<br>
+        <strong>Answers Logged:</strong> ${p.answers?.length || 0}
+      `;
+
+      const choiceLetters = ["A", "B", "C", "D"];
+      let boxesHtml = "";
+
+      for (let i = 1; i <= 25; i++) {
+        const ans = p.answers ? p.answers.find(a => a.questionIndex === i) : null;
+        let choiceText = "-";
+        let boxClass = "";
+
+        if (ans) {
+          if (ans.choice === "timeout") {
+            choiceText = "Timed Out";
+            boxClass = "ans-timeout";
+          } else {
+            const letter = typeof ans.choice === "number" ? choiceLetters[ans.choice] : ans.choice;
+            choiceText = `${letter} ${ans.isCorrect ? "✓" : "✗"}`;
+            boxClass = ans.isCorrect ? "ans-correct" : "ans-wrong";
+          }
+        }
+
+        boxesHtml += `
+          <div class="ans-box ${boxClass}">
+            <strong>Q${i}</strong><br>
+            <span>${choiceText}</span>
+          </div>
+        `;
+      }
+
+      modalAnswers.innerHTML = boxesHtml;
+      detailModal.classList.remove("hidden");
+    };
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+  </script>
+</body>
+</html>
