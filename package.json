@@ -1,0 +1,17 @@
+{
+  "name": "mind-matters-quiz",
+  "version": "1.0.0",
+  "description": "Mind Matters Quiz for World Mental Health Day at Perpustakaan Negeri Sabah, Cawangan Tanjung Aru",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "start": "netlify dev",
+    "test": "node test/test_all.mjs"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.0"
+  }
+}

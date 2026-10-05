@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mind Matters Quiz | World Mental Health Day</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Ambient Animated Background -->
+  <div class="bg-animation" aria-hidden="true">
+    <div class="glowing-circle circle-1"></div>
+    <div class="glowing-circle circle-2"></div>
+    <div class="drifting-leaf leaf-1">🍃</div>
+    <div class="drifting-leaf leaf-2">🌿</div>
+    <div class="drifting-leaf leaf-3">🍃</div>
+  </div>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header class="app-header">
+      <img src="logo.png" alt="Perpustakaan Negeri Sabah, Cawangan Tanjung Aru Logo" class="library-logo" />
+      <div class="badge-tag">World Mental Health Day</div>
+      <h1 class="app-title">Mind Matters Quiz</h1>
+    </header>
+
+    <!-- Global Back to Menu Button Container (Hidden during quiz) -->
+    <div id="nav-container" class="nav-container hidden">
+      <button id="btn-back-to-menu" class="btn-secondary btn-small" aria-label="Back to Main Menu">
+        ← Back to Menu
+      </button>
+    </div>
+
+    <!-- Main Content Area -->
+    <main id="main-content" class="main-content">
+      
+      <!-- SCREEN 1: MAIN MENU -->
+      <section id="screen-main-menu" class="screen-card active">
+        <div class="welcome-banner">
+          <h2>Welcome to Mind Matters!</h2>
+          <p>Test your mental health awareness, learn valuable insights, and take a step toward understanding and support.</p>
+        </div>
+
+        <div class="menu-buttons-group">
+          <button id="btn-menu-register" class="btn-primary btn-large">
+            <span class="btn-icon">📝</span>
+            <span class="btn-text">Register & Start Quiz</span>
+          </button>
+          
+          <button id="btn-menu-rules" class="btn-secondary btn-large">
+            <span class="btn-icon">📋</span>
+            <span class="btn-text">Read the Rules</span>
+          </button>
+
+          <button id="btn-menu-leaderboard" class="btn-accent btn-large">
+            <span class="btn-icon">🏆</span>
+            <span class="btn-text">Live Leaderboard</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 2: REGISTER -->
+      <section id="screen-register" class="screen-card hidden">
+        <h2>Participant Registration</h2>
+        <p class="screen-subtitle">Please enter your details to begin the exhibition quiz.</p>
+
+        <!-- Registration Error Box -->
+        <div id="register-error" class="alert-box alert-danger hidden" role="alert"></div>
+
+        <form id="register-form" novalidate>
+          <div class="form-group">
+            <label for="reg-email">Email Address <span class="required">*</span></label>
+            <input type="email" id="reg-email" placeholder="example@email.com" required autocomplete="email" />
+            <span class="field-hint">Used strictly for verification & masked on the leaderboard.</span>
+          </div>
+
+          <div class="form-group">
+            <div class="label-with-badge">
+              <label for="reg-ic">IC Number <span class="required">*</span></label>
+              <span class="badge-hint">12 digits</span>
+            </div>
+            <input type="text" id="reg-ic" placeholder="e.g. 900101125555" maxlength="14" required />
+            <span class="field-hint">Dashes and spaces will be removed automatically.</span>
+          </div>
+
+          <div class="disclaimer-card">
+            <p class="disclaimer-text">
+              🔒 <strong>Privacy Note:</strong> Your email address and IC number are used only to verify that each person participates once. Your IC number and full email address will never be shown. The leaderboard shows only a masked version of your email and your score.
+            </p>
+            <label class="checkbox-container">
+              <input type="checkbox" id="reg-agree" required />
+              <span class="checkmark"></span>
+              <span class="checkbox-label">I understand and agree</span>
+            </label>
+          </div>
+
+          <button type="submit" id="btn-submit-register" class="btn-primary btn-large btn-block">
+            Register & Proceed
+          </button>
+        </form>
+
+        <!-- Post-registration Start Quiz Container -->
+        <div id="post-register-actions" class="post-register-box hidden">
+          <div class="alert-box alert-success">
+            <strong>Registration Ready!</strong> Your attempt has been registered. Click below when you are ready to begin the quiz.
+          </div>
+          <button id="btn-start-quiz-now" class="btn-primary btn-large btn-block btn-pulse">
+            🚀 Start Quiz Now
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN 3: RULES -->
+      <section id="screen-rules" class="screen-card hidden">
+        <h2>Quiz Rules & Guidelines</h2>
+        <ul class="rules-list">
+          <li class="rule-item">
+            <span class="rule-num">1</span>
+            <div class="rule-text">Each person may participate only <strong>ONE time</strong>.</div>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">2</span>
+            <div class="rule-text">Any participation after your first attempt will not be counted and is therefore <strong>forfeited</strong>.</div>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">3</span>
+            <div class="rule-text">Each question has <strong>15 seconds</strong>. When time runs out, the quiz moves to the next question and that question scores 0.</div>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">4</span>
+            <div class="rule-text">Each correct answer scores 1 point, for a maximum score of <strong>25</strong>.</div>
+          </li>
+          <li class="rule-item">
+            <span class="rule-num">5</span>
+            <div class="rule-text">Your IC number and full email address are <strong>never shown</strong>. The leaderboard shows only a masked email and your score.</div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- SCREEN 4: LIVE LEADERBOARD -->
+      <section id="screen-leaderboard" class="screen-card hidden">
+        <div class="leaderboard-header">
+          <h2>Exhibition Live Leaderboard</h2>
+          <div class="live-status-bar">
+            <span class="live-indicator"><span class="live-dot"></span> LIVE</span>
+            <span id="leaderboard-updated-time" class="update-timestamp">Updating...</span>
+          </div>
+        </div>
+
+        <div id="leaderboard-loading" class="loading-spinner-container">
+          <div class="spinner"></div>
+          <p>Fetching live rankings...</p>
+        </div>
+
+        <div id="leaderboard-empty" class="alert-box alert-info hidden">
+          No participants have completed the quiz yet. Be the first to join the leaderboard!
+        </div>
+
+        <div id="leaderboard-table-wrapper" class="table-wrapper hidden">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th scope="col" class="th-rank">Rank</th>
+                <th scope="col" class="th-email">Participant</th>
+                <th scope="col" class="th-score">Score / 25</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <!-- Dynamically populated rows -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SCREEN 5: QUIZ -->
+      <section id="screen-quiz" class="screen-card hidden">
+        <!-- Quiz Meta Bar -->
+        <div class="quiz-meta-bar">
+          <span id="quiz-question-counter" class="badge-meta">Question 1 of 25</span>
+          <span id="quiz-score-tracker" class="badge-meta score-meta">Score: 0</span>
+        </div>
+
+        <!-- Dynamic Timer Bar -->
+        <div class="timer-wrapper">
+          <div class="timer-label-row">
+            <span id="timer-seconds-text" class="timer-seconds">15s</span>
+          </div>
+          <div class="timer-track">
+            <div id="timer-bar" class="timer-bar timer-green" style="width: 100%;"></div>
+          </div>
+        </div>
+
+        <!-- Question Body -->
+        <div class="question-container">
+          <h3 id="quiz-question-text" class="question-text">Loading question...</h3>
+          
+          <div id="quiz-choices-group" class="choices-group">
+            <button class="choice-btn" data-choice="0">
+              <span class="choice-prefix">A</span>
+              <span class="choice-text">Option A</span>
+            </button>
+            <button class="choice-btn" data-choice="1">
+              <span class="choice-prefix">B</span>
+              <span class="choice-text">Option B</span>
+            </button>
+            <button class="choice-btn" data-choice="2">
+              <span class="choice-prefix">C</span>
+              <span class="choice-text">Option C</span>
+            </button>
+            <button class="choice-btn" data-choice="3">
+              <span class="choice-prefix">D</span>
+              <span class="choice-text">Option D</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN 6: RESULT -->
+      <section id="screen-result" class="screen-card hidden">
+        <div class="result-header">
+          <div class="result-icon">🎉</div>
+          <h2>Quiz Completed!</h2>
+        </div>
+
+        <div class="score-card">
+          <span class="score-label">Your Final Score</span>
+          <div class="score-display">
+            <span id="result-score-num" class="score-num">0</span>
+            <span class="score-max">/ 25</span>
+          </div>
+          <p id="result-encouragement" class="score-encouragement"></p>
+        </div>
+
+        <div class="result-actions">
+          <button id="btn-result-leaderboard" class="btn-accent btn-large btn-block">
+            🏆 View Live Leaderboard
+          </button>
+          <button id="btn-result-menu" class="btn-secondary btn-large btn-block">
+            🏠 Return to Main Menu
+          </button>
+        </div>
+
+        <!-- Helplines & Support Note -->
+        <div class="helpline-card">
+          <div class="helpline-title">🌱 We Are Here For You</div>
+          <p class="helpline-quote">
+            "If you or someone you know is struggling, reaching out for help is a step toward healing."
+          </p>
+          <div class="helpline-resources">
+            <div class="resource-item">
+              <strong>Befrienders KL</strong>
+              <span>Free, strictly confidential & anonymous 24/7 emotional support.</span>
+              <a href="https://www.befrienders.org.my" target="_blank" rel="noopener noreferrer">befrienders.org.my</a>
+              <span class="phone-num">📞 03-7627 2929</span>
+            </div>
+            <div class="resource-item">
+              <strong>MIASA</strong>
+              <span>Mental Illness Awareness & Support Association (Peer Support & Advocacy).</span>
+              <a href="https://miasa.org.my" target="_blank" rel="noopener noreferrer">miasa.org.my</a>
+              <span class="phone-num">📞 1-800-820-066</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+      <p>World Mental Health Day Exhibition • Perpustakaan Negeri Sabah, Cawangan Tanjung Aru</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
