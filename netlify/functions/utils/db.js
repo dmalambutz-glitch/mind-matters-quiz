@@ -1,92 +1,91 @@
 import fs from "fs";
 import path from "path";
 
+const TOKEN = process.env.NETLIFY_AUTH_TOKEN || "nfp_PnAHWtSynZbN8rzj5aiSaT3tndG3C4UMa149";
+const SITE_ID = process.env.NETLIFY_SITE_ID || "6abfd8f6-bf7b-4e88-add0-7c710e2e6eb8";
+const STORE = "mind_matters";
+const BASE_URL = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/${STORE}`;
+
 const LOCAL_FILE = path.join(process.cwd(), ".local-data.json");
 
-function readLocalData() {
+function getLocalData() {
   try {
     if (fs.existsSync(LOCAL_FILE)) {
       return JSON.parse(fs.readFileSync(LOCAL_FILE, "utf8"));
     }
-  } catch (e) {
-    // Ignore read errors
-  }
+  } catch (e) {}
   return {};
 }
 
-function writeLocalData(data) {
+function saveLocalData(data) {
   try {
     fs.writeFileSync(LOCAL_FILE, JSON.stringify(data, null, 2), "utf8");
-  } catch (e) {
-    // Ignore write errors
-  }
-}
-
-async function getNetlifyStore() {
-  try {
-    const blobsModule = await import("@netlify/blobs");
-    if (blobsModule && typeof blobsModule.getStore === "function") {
-      return blobsModule.getStore("mind_matters");
-    }
-  } catch (err) {
-    // @netlify/blobs package dynamic import error or unlinked context
-  }
-  return null;
+  } catch (e) {}
 }
 
 /**
- * Gets a value from Netlify Blobs with local fallback.
+ * Gets a value from Netlify Blobs via REST API with local fallback.
  */
 export async function getBlob(key) {
   try {
-    const store = await getNetlifyStore();
-    if (store) {
-      const val = await store.get(key, { type: "json" });
-      if (val !== null && val !== undefined) {
-        return val;
-      }
+    const encodedKey = encodeURIComponent(key);
+    const res = await fetch(`${BASE_URL}/${encodedKey}`, {
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    if (res.status === 200) {
+      return await res.json();
     }
   } catch (err) {
-    // Fallback
+    // Network or offline fallback
   }
-  const local = readLocalData();
+  const local = getLocalData();
   return local[key] !== undefined ? local[key] : null;
 }
 
 /**
- * Saves a JSON value to Netlify Blobs with local fallback.
+ * Saves a JSON value to Netlify Blobs via REST API with local fallback.
  */
 export async function setBlob(key, value) {
   try {
-    const store = await getNetlifyStore();
-    if (store) {
-      await store.setJSON(key, value);
+    const encodedKey = encodeURIComponent(key);
+    const res = await fetch(`${BASE_URL}/${encodedKey}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(value)
+    });
+    if (res.ok) {
+      return true;
     }
   } catch (err) {
-    // Fallback
+    // Network or offline fallback
   }
-  // Keep local JSON in sync
-  const local = readLocalData();
+  const local = getLocalData();
   local[key] = value;
-  writeLocalData(local);
+  saveLocalData(local);
   return true;
 }
 
 /**
- * Lists blob keys with a given prefix.
+ * Lists blob keys with a given prefix via Netlify Blobs REST API.
  */
 export async function listBlobs(prefix = "") {
   try {
-    const store = await getNetlifyStore();
-    if (store) {
-      const res = await store.list({ prefix });
-      if (res && Array.isArray(res.blobs)) {
-        return res.blobs.map(b => b.key);
+    const url = prefix ? `${BASE_URL}?prefix=${encodeURIComponent(prefix)}` : BASE_URL;
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${TOKEN}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.blobs)) {
+        return data.blobs.map(b => b.key);
       }
     }
   } catch (err) {
-    // Fallback
+    // Network or offline fallback
   }
-  const local = readLocalData();
+  const local = getLocalData();
   return Object.keys(local).filter(k => k.startsWith(prefix));
 }
